@@ -171,4 +171,5 @@ button:hover {
     font-size: 1rem;
     opacity: 0;
     animation: fadeOut 7s forwards;
+
 }

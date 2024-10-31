@@ -1,10 +1,8 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
+import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js"
 
-// Your web app's Firebase configuration
+
 const firebaseConfig = {
     apiKey: "AIzaSyDCgOTcTqB6nzHVRwalK3YlYe22rvqravY",
     authDomain: "authentication-d4e0e.firebaseapp.com",
@@ -26,7 +24,6 @@ function showMessage(message, divId) {
         messageDiv.style.opacity = 0;
     }, 5000);
 }
-
 const signUp = document.getElementById('submitSignUp');
 signUp.addEventListener('click', (event) => {
     event.preventDefault();
@@ -38,22 +35,25 @@ signUp.addEventListener('click', (event) => {
     const auth = getAuth();
     const db = getFirestore();
 
-    createUserWithEmailAndPassword(auth, email, password).then((userCredential) => {
-        const user = userCredential.user;
-        const userData = {
-            email: email,
-            firstName: firstName,
-            lastName: lastName
-        };
-        showMessage('Account Created Successfully', 'signUpMessage');
-        const docRef = doc(db, "users", user.uid);
-        setDoc(docRef, userData).then(() => {
-            window.location.href = 'index.html';
+    createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            const userData = {
+                email: email,
+                firstName: firstName,
+                lastName: lastName
+            };
+            showMessage('Account Created Successfully', 'signUpMessage');
+            const docRef = doc(db, "users", user.uid);
+            setDoc(docRef, userData)
+                .then(() => {
+                    window.location.href = 'index.html';
+                })
+                .catch((error) => {
+                    console.error("error writing document", error);
+
+                });
         })
-            .catch((error) => {
-                console.error("error writing document", error)
-            });
-    })
         .catch((error) => {
             const errorCode = error.code;
             if (errorCode == 'auth/email-already-in-use') {
@@ -64,3 +64,28 @@ signUp.addEventListener('click', (event) => {
             }
         })
 });
+
+const signIn = document.getElementById('submitSignIn');
+signIn.addEventListener('click', (event) => {
+    event.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const auth = getAuth();
+
+    signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            showMessage('login is successful', 'signInMessage');
+            const user = userCredential.user;
+            localStorage.setItem('loggedInUserId', user.uid);
+            window.location.href = 'homepage.html';
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            if (errorCode === 'auth/invalid-credential') {
+                showMessage('Incorrect Email or Password', 'signInMessage');
+            }
+            else {
+                showMessage('Account does not Exist', 'signInMessage');
+            }
+        })
+})
